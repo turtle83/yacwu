@@ -2,6 +2,10 @@ from wsgiref.simple_server import make_server
 import json, socket
 
 def cgminer_cmd(m, cmd):
+    """
+    m : IP
+    cmd = dict with command and optionally parameter
+    """
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((m, 4028))
     sock.send(bytearray(json.dumps(cmd), 'utf-8'))
@@ -15,6 +19,11 @@ def cgminer_cmd(m, cmd):
 
 
 def api_handler(environ, start_response):
+    """
+    catches request in format : /api/<command>/<parameter>/
+    TODO: Sanitize/validate request/response
+    Make RESTful - Enforce PUT/POST for state changing things.
+    """
     path = environ['PATH_INFO'].split("/")
     command = {"command": path[2]}
     param = None
@@ -31,6 +40,9 @@ def api_handler(environ, start_response):
 
 
 def application(environ, start_response):
+    """
+    Anything thats not /api gets served the html file because we will use the location api for things
+    """
     if environ['PATH_INFO'].startswith("/api"):
         return api_handler(environ, start_response)
     else:
@@ -42,6 +54,6 @@ def application(environ, start_response):
         return [content]
 
 if __name__ == "__main__":
-    #In production probably run application using a real WSGI server -- spawning?
+    #In production probably run application using a real WSGI server -- spawning/gunicorn?
     httpd = make_server('', 1337,  application )
     httpd.serve_forever()
