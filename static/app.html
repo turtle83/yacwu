@@ -5,6 +5,7 @@
 </head>
 <body>
 	<h1>Hello World!</h1>
+	Updated : {{refreshed| date:'medium'}}
 	<button ng-click='reload_all()'>Reload</button>
 	<table>
 		<tr>
@@ -56,6 +57,7 @@ function MainCtrl($scope, $http, $timeout ){
 	$scope.pools_status = {};
 	$scope.devs = [];
 	$scope.devs_status = {};
+	$scope.refreshed = null;
 
 	$scope.reload_pools = function(){
 		$http.get("/api/pools/").success(function(data){
@@ -75,9 +77,15 @@ function MainCtrl($scope, $http, $timeout ){
 	$scope.reload_all = function(){
 		$scope.reload_pools();
 		$scope.reload_devs();
+		$scope.refreshed = new Date();
 	}
 
 	$scope.reload_all();
+
+	$timeout(function updater(){
+		$scope.reload_all();
+		$timeout(updater, 10000);
+	},1000);
 }
 </script>
 
