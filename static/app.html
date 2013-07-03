@@ -7,18 +7,23 @@
 	<h1>Hello World!</h1>
 	Updated : {{refreshed| date:'medium'}}
 	<button ng-click='reload_all()'>Reload</button>
+	<h3>Summary</h3>
+	{{summary_status.When * 1000 | date:'medium'}} {{summary_status.Description}} started 
+	{{summary_global.Elapsed}} seconds ago.
 	<table>
 		<tr>
 			<th>ID</th>
 			<th>Accepted</th>
 			<th>Rejected</th>
-			<th>Last Share</th>
+			<th>Best Share</th>
+			<th>Last Share time</th>
 			<th>URL</th>
 		</tr>
 		<tr ng-repeat="pool in pools">
 			<td>{{pool.POOL}}</td>
 			<td>{{pool.Accepted}}</td>
 			<td>{{pool.Rejected}}</td>
+			<td>{{pool["Best Share"]}}</td>
 			<td>{{pool["Last Share Time"] * 1000| date:'medium'}}</td>
 			<td>{{pool.URL}}</td>
 		</tr>
@@ -73,10 +78,17 @@ function MainCtrl($scope, $http, $timeout ){
 		});
 	}
 
+	$scope.reload_summary = function(){
+		$http.get("/api/summary/").success(function(data){
+			$scope.summary_global = data["SUMMARY"][0]
+			$scope.summary_status = data["STATUS"][0]
+		});
+	}
 
 	$scope.reload_all = function(){
 		$scope.reload_pools();
 		$scope.reload_devs();
+		$scope.reload_summary();
 		$scope.refreshed = new Date();
 	}
 
