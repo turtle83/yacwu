@@ -49,7 +49,7 @@
 			<th>{{summary_global["Last Share Time"] * 1000 | date:'medium'}}</th>
 			<th>{{summary_global.Accepted}}</th>
 			<th>{{summary_global.Rejected}}</th>
-			<th>{{summary_global["Hardware Errors"]}} ({{summary_global["Hardware Errors"]/ (summary_global.Accepted + summary_global.Rejected) * 100 |number }}%)</th>
+			<th>{{summary_global["Hardware Errors"]}} ({{summary_global["Hardware Errors"]/ (summary_global.Accepted + summary_global.Rejected + summary_global["Hardware Errors"]) * 100 |number }}%)</th>
 		</tr>
 		<tr ng-repeat='dev in devs' ng-show='showdevdetails'>
 			<td>{{dev.ID}} </td>
@@ -60,7 +60,7 @@
 			<td>{{dev["Last Share Time"] * 1000 | date:'medium'}}</td>
 			<td>{{dev.Accepted}}</td>
 			<td>{{dev.Rejected}}</td>
-			<td>{{dev["Hardware Errors"]}} ({{dev["Hardware Errors"]/ (dev.Accepted + dev.Rejected) * 100 |number }}%)</td>
+			<td>{{dev["Hardware Errors"]}} ({{dev["Hardware Errors"]/ (dev.Accepted + dev.Rejected + dev["Hardware Errors"]) * 100 |number }}%)</td>
 		</tr>
 	</table>
 
