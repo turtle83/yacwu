@@ -40,7 +40,18 @@
 			<th>Rejected</th>
 			<th>HW err</th>
 		</tr>
-		<tr ng-repeat='dev in devs'>
+		<tr ng-click='showdevdetails = !showdevdetails'>
+			<th>All</th>
+			<th>Summary</th>
+			<th>???</th>
+			<th>???</th>
+			<th>{{summary_global["MHS av"]}} MH/s</th>
+			<th>{{summary_global["Last Share Time"] * 1000 | date:'medium'}}</th>
+			<th>{{summary_global.Accepted}}</th>
+			<th>{{summary_global.Rejected}}</th>
+			<th>{{summary_global["Hardware Errors"]}} ({{summary_global["Hardware Errors"]/ (summary_global.Accepted + summary_global.Rejected) * 100 |number }}%)</th>
+		</tr>
+		<tr ng-repeat='dev in devs' ng-show='showdevdetails'>
 			<td>{{dev.ID}} </td>
 			<td>{{dev.Name}}</td>
 			<td>{{dev.Enabled}}</td>
@@ -63,6 +74,7 @@ function MainCtrl($scope, $http, $timeout ){
 	$scope.devs = [];
 	$scope.devs_status = {};
 	$scope.refreshed = null;
+	$scope.showdevdetails = false;
 
 	$scope.reload_pools = function(){
 		$http.get("/api/pools/").success(function(data){
@@ -80,8 +92,16 @@ function MainCtrl($scope, $http, $timeout ){
 
 	$scope.reload_summary = function(){
 		$http.get("/api/summary/").success(function(data){
+			var last_share = 0;
 			$scope.summary_global = data["SUMMARY"][0]
 			$scope.summary_status = data["STATUS"][0]
+			//Get last share from devs
+			$scope.devs.forEach(function(dev){
+				if (dev["Last Share Time"] > last_share){
+					last_share = dev["Last Share Time"];
+				}
+			});
+			$scope.summary_global["Last Share Time"] = last_share;
 		});
 	}
 
