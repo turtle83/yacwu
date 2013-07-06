@@ -30,7 +30,7 @@
 			<th>{{currentpool.User}}</th>
 		</tr>
 		<tr ng-repeat="pool in pools" ng-show='showpooldetails'>
-			<td>{{pool.POOL}}</td>
+			<td>{{pool.POOL}} <button ng-show='pool.POOL != currentpool.POOL' ng-click='switch_pool(pool.POOL)'>Switch</button><span ng-hide='pool.POOL != currentpool.POOL'>Active</span></td>
 			<td>{{pool.Accepted}}</td>
 			<td>{{pool.Rejected}}</td>
 			<td>{{pool["Best Share"]}}</td>
@@ -89,12 +89,21 @@ function MainCtrl($scope, $http, $timeout ){
 	$scope.showpooldetails = false;
 	$scope.currentpool = {};
 
+	$scope.switch_pool = function(id){
+		console.log("switching to : " + id);
+		uri = "/api/switchpool/" + id + "/";
+		$http.get(uri).success(function(data){
+			//Reload once now so user gets faster feedback.
+			$scope.reload_all();
+		})
+	}
 
 	$scope.reload_pools = function(){
 		$http.get("/api/pools/").success(function(data){
 			$scope.pools = data["POOLS"];
 			$scope.pools_status = data["STATUS"][0];
 			$scope.currentpool["Last Share Time"] = 0;
+			//Search for current active pool based on last share time. Really bad way. need better method.
 			$scope.pools.forEach(function(pool){
 				if (pool["Last Share Time"] > $scope.currentpool["Last Share Time"]){
 					$scope.currentpool = pool;
