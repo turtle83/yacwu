@@ -6,7 +6,7 @@ Yet another cgminer web UI
 WORK IN PROGRESS - DONT USE
 
 
-start cgminer with "--api-listen --api-allow=W:127.0.0.1" and run server.py navigate to http://127.0.0.1:1337/
+start cgminer with "--api-listen --api-allow=W:127.0.0.1 --syslog" and run server.py navigate to http://127.0.0.1:1337/
 
 
 Todo
