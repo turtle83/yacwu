@@ -74,7 +74,7 @@
 			<td>{{dev["Hardware Errors"]}} ({{dev["Hardware Errors"]/ (dev.Accepted + dev.Rejected + dev["Hardware Errors"]) * 100 |number }}%)</td>
 		</tr>
 	</table>
-
+	<textarea style="height:400px;width:100%" readonly=1>{{syslog}}</textarea>
 
 <script>
 angular.module('myApp',[ ])
@@ -125,10 +125,17 @@ function MainCtrl($scope, $http, $timeout ){
 		});
 	}
 
+	$scope.reload_syslog = function(){
+		$http.get("/syslog").success(function(data){
+			$scope.syslog = data;
+		})
+	}
+
 	$scope.reload_all = function(){
 		$scope.reload_pools();
 		$scope.reload_devs();
 		$scope.reload_summary();
+		$scope.reload_syslog();
 		$scope.refreshed = new Date();
 	}
 

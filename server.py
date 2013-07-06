@@ -1,5 +1,5 @@
 from wsgiref.simple_server import make_server
-import json, socket
+import json, socket, subprocess
 
 def cgminer_cmd(m, cmd):
     """
@@ -16,6 +16,25 @@ def cgminer_cmd(m, cmd):
         chunk = sock.recv(64)
     sock.close()
     return result[0:-1]
+
+
+def get_syslog(lines=20, search=50):
+    """
+    greps for {lines} lines matching cgminer out of last {search} lines.
+    """
+    ps = subprocess.Popen(['tail', "-%s" %(search), "/var/log/syslog"], stdout=subprocess.PIPE)
+    grep = subprocess.Popen(('grep', 'cgminer'), stdin=ps.stdout, stdout=subprocess.PIPE)
+    tail = subprocess.Popen(('tail', "-%s" %(lines)), stdin=grep.stdout, stdout=subprocess.PIPE)
+    output, err = tail.communicate()
+    return output
+
+def serve_syslog(environ, start_response):
+    status = '200 OK'
+    content = get_syslog()
+    response_headers = [('Content-Type', 'text/html'),
+            ('Content-Length', str(len(content)))]
+    start_response(status, response_headers)
+    return [content]
 
 
 def api_handler(environ, start_response):
@@ -45,6 +64,8 @@ def application(environ, start_response):
     """
     if environ['PATH_INFO'].startswith("/api"):
         return api_handler(environ, start_response)
+    elif environ['PATH_INFO'].startswith("/syslog"):
+        return serve_syslog(environ, start_response)
     else:
         status = '200 OK'
         content = open("static/app.html").read()
