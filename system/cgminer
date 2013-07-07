@@ -11,6 +11,7 @@ case "$1" in
   start)
     echo "Starting cgminer "
     echo "Starting cgminer " | logger -t cgminer
+    #TODO: See if we need to detach it, or run it using a control script
     cgminer
     ;;
   stop)
