@@ -1,0 +1,28 @@
+#! /bin/sh
+# /etc/init.d/cgminer
+# This is init script for cgminer.
+# Adapted from http://raspberrypi.stackexchange.com/a/762
+
+# Some things that run always
+touch /var/lock/cgminer
+
+# Carry out specific functions when asked to by the system
+case "$1" in
+  start)
+    echo "Starting cgminer "
+    echo "Starting cgminer " | logger -t cgminer
+    cgminer
+    ;;
+  stop)
+    echo "Stopping cgminer"
+    echo "Stopping cgminer"  | logger -t cgminer
+    #TODO: This is bad. Maybe use API to send shutdown command before killing.
+    killall -9 cgminer
+    ;;
+  *)
+    echo "Usage: /etc/init.d/cgminer {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
