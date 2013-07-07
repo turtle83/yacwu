@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 from wsgiref.simple_server import make_server
 import json, socket, subprocess
+from os.path import expanduser
+
+CONFIG_FILE = expanduser("~/.cgminer/cgminer.conf")
 
 def cgminer_cmd(m, cmd):
     """
@@ -37,6 +40,33 @@ def serve_syslog(environ, start_response):
     start_response(status, response_headers)
     return [content]
 
+def read_configfile(fname=CONFIG_FILE):
+    """
+    Return the contents of the config file from disk
+    """
+    return open(fname).read()
+
+def save_configfile(conf):
+    """
+    Store the new config.
+    """
+    open(CONFIG_FILE, "w").write(conf)
+
+def conf_dirty():
+    """
+    Compare the config from when cgminer started to now.
+    """
+    oldconfig = read_configfile(fname=CONFIG_FILE + ".current") #cgminer's launcher needs to save this at launchtime
+    currentconfig = read_configfile()
+    return oldconfig != currentconfig
+
+def config_handler(environ, start_response):
+    """
+    TODO: handler for config endpoint.
+    GET returns the current config.
+    PUT stores new config
+    """
+    pass
 
 def api_handler(environ, start_response):
     """
@@ -58,7 +88,6 @@ def api_handler(environ, start_response):
     start_response(status, response_headers)
     return [content]
 
-
 def application(environ, start_response):
     """
     Anything thats not /api gets served the html file because we will use the location api for things
@@ -67,6 +96,8 @@ def application(environ, start_response):
         return api_handler(environ, start_response)
     elif environ['PATH_INFO'].startswith("/syslog"):
         return serve_syslog(environ, start_response)
+    elif environ['PATH_INFO'].startswith("/configfile"):
+        return config_handler(environ, start_response)
     else:
         status = '200 OK'
         content = open("static/app.html").read()
