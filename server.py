@@ -22,7 +22,7 @@ def cgminer_cmd(m, cmd):
     return result[0:-1]
 
 
-def get_syslog(lines=20, search=50):
+def get_syslog(lines=40, search=75):
     """
     greps for {lines} lines matching cgminer out of last {search} lines.
     """
@@ -66,7 +66,11 @@ def config_handler(environ, start_response):
     GET returns the current config.
     PUT stores new config
     """
-    pass
+    content = read_configfile()
+    response_headers = [('Content-Type', 'application/json'),
+            ('Content-Length', str(len(content)))]
+    start_response('200 OK', response_headers)
+    return [content]
 
 def api_handler(environ, start_response):
     """
