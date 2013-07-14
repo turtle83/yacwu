@@ -99,9 +99,15 @@
 				</tr>
 			</table>
 			<button ng-click='configfile.pools.push({"url": "", "user": "", "pass": ""})'>Add pool</button>
+			<h3>Other settings</h3>
+			(klondike specific options in future...)
+			<ul>
+				<li>failover-only : <input type='checkbox' ng-model='configfile["failover-only"]' /> (Don't leak work to backup pools when primary pool is lagging)</li>
+				<li>hotplug : <input type="text" ng-model='configfile.hotplug' /> (Set hotplug check time to <arg> seconds (0=never default: 5) - only with libusb) </li>
+			</ul>
 		</div>
 		<textarea style="height:400px;width:100%" >{{configfile| json}}</textarea>
-		<button ng-disabled="config_save==true">Save</button>
+		<button ng-disabled="config_save==true">Save</button> ^ verify/edit if needed before saving
 	</div>
 
 <script>
