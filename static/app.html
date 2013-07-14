@@ -9,7 +9,7 @@
 	<button ng-click='reload_all()'>Reload</button>
 	<h3>Summary</h3>
 	{{summary_status.When * 1000 | date:'medium'}} {{summary_status.Description}} started 
-	{{summary_global.Elapsed}} seconds ago.
+	{{format_timedelta(summary_global.Elapsed)}} ago.
 	<table>
 		<tr>
 			<th>ID</th>
@@ -88,6 +88,28 @@ function MainCtrl($scope, $http, $timeout ){
 	$scope.showdevdetails = false;
 	$scope.showpooldetails = false;
 	$scope.currentpool = {};
+
+
+	$scope.format_timedelta = function(seconds){
+		//Turtle being n00b here. This should be a module.
+		//TODO: Decide if we want weeks/months also...
+		var mins, hour, day;
+		day = Math.floor(seconds / (60 * 60 * 24)); //days
+		seconds = seconds - (day * 60 * 60 * 24); //remainder
+		hour = Math.floor(seconds / (60 * 60));// hours
+		seconds = seconds - (hour * 60 * 60 ); //remainder
+		mins = Math.floor(seconds /  60);// minutes
+		seconds = seconds - (mins * 60 ); //remainder seconds
+		if (day > 0){
+			return day + " days, " + hour + " hours";
+		} else if (hour > 0) {
+			return hour + " hours, " + mins + " minutes";
+		} else if (mins > 0){
+			return mins + " minutes, " + seconds + " seconds";
+		} else {
+			return seconds + " seconds";
+		}
+	}
 
 	$scope.switch_pool = function(id){
 		console.log("switching to : " + id);
