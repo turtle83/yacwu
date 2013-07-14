@@ -100,7 +100,7 @@
 			</table>
 			<button ng-click='configfile.pools.push({"url": "", "user": "", "pass": ""})'>Add pool</button>
 		</div>
-		<textarea style="height:400px;width:100%" >{{configfile}}</textarea>
+		<textarea style="height:400px;width:100%" >{{configfile| json}}</textarea>
 		<button ng-disabled="config_save==true">Save</button>
 	</div>
 
