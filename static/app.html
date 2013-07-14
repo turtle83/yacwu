@@ -1,7 +1,7 @@
 <html ng-app="myApp" ng-controller="MainCtrl">
 <head>
 	<title>Cgminer controler</title>
-	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script> <!-- in future use local copy for dependencies-->
 </head>
 <body>
 	<h1>Hello World!</h1>
@@ -102,11 +102,18 @@
 			<h3>Other settings</h3>
 			(klondike specific options in future...)
 			<ul>
-				<li>failover-only : <input type='checkbox' ng-model='configfile["failover-only"]' /> (Don't leak work to backup pools when primary pool is lagging)</li>
+				<li>
+					Multipool strategy : <ul>
+						<li><input type='radio' name='multipool' ng-model='multipool' value='failover' id='failover' ng-change='update_multipool()'/>  <label for="failover">Failover only (Don't leak work to backup pools when primary pool is lagging)</label> </li>
+						<li><input type='radio' name='multipool' ng-model='multipool' value='balance' id='balance' ng-change='update_multipool()'/>  <label for="balance">Balance (Change multipool strategy from failover to even share balance)</label> </li>
+						<li><input type='radio' name='multipool' ng-model='multipool' value='loadbalance' id='loadbalance' ng-change='update_multipool()'/>  <label for="loadbalance">Load Balance (Change multipool strategy from failover to efficiency based balance)</label> </li>
+						<li><input type='radio' name='multipool' ng-model='multipool' value='roundrobin' id='roundrobin' ng-change='update_multipool()'/>  <label for="roundrobin">Round Robin (Change multipool strategy from failover to round robin on failure)</label> </li>
+					</ul>
+				</li>
 				<li>hotplug : <input type="text" ng-model='configfile.hotplug' /> (Set hotplug check time to <arg> seconds (0=never default: 5) - only with libusb) </li>
 			</ul>
 		</div>
-		<textarea style="height:400px;width:100%" >{{configfile| json}}</textarea>
+		<textarea style="height:100%;width:100%" >{{configfile| json}}</textarea>
 		<button ng-disabled="config_save==true">Save</button> ^ verify/edit if needed before saving
 	</div>
 
@@ -212,12 +219,35 @@ function MainCtrl($scope, $http, $timeout ){
 		$scope.config_save = true;
 		$scope.configfile = null;
 		$http.get('/configfile').success(function(data){
+			if (data["failover-only"]){
+				$scope.multipool = "failover";
+			} else if (data.balance){
+				$scope.multipool = "balance";
+			} else if (data["round-robin"]){
+				$scope.multipool = "roundrobin";
+			} else if (data["load-balance"]){
+				$scope.multipool = "loadbalance";
+			} 
 			$scope.configfile = data;
 			$scope.config_save = false;
 		})
 	}
 
-	
+	$scope.update_multipool = function(){
+		var opts = ["failover-only", "round-robin", "balance", "load-balance"];
+		opts.forEach(function(opt){
+			delete $scope.configfile[opt];
+		})
+		if ($scope.multipool == "failover"){
+			$scope.configfile["failover-only"] = true;
+		} else if ($scope.multipool == "roundrobin"){
+			$scope.configfile["round-robin"] = true;
+		} else if ($scope.multipool == "balance"){
+			$scope.configfile["balance"] = true;
+		} else if ($scope.multipool == "loadbalance"){
+			$scope.configfile["load-balance"] = true;
+		}
+	}
 
 
 	$timeout(function updater(){
